@@ -23,6 +23,13 @@ class CustomersFixture extends Fixture
 
     public $passwordHasher;
 
+    static public $testCustomer = [
+        'email' => 'test@example.com',
+        'password' => '123456789',
+    ];
+
+    static $customersCount = 5;
+
     public function __construct()
     {
         // init password hasher
@@ -37,28 +44,31 @@ class CustomersFixture extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+
+        // Create default customer
         $customer = new Customer();
 
-        $customer->setEmail('test@example.com');
-
-        // set Roles
+        // set customer attributes
+        $customer->setEmail(self::$testCustomer['email']);
+        $customer->setPassword($this->passwordHasher->hashPassword($customer, self::$testCustomer['password']));
         $customer->setRoles(['ROLE_USER']);
-        
 
-        // create random plain password
-        $plainPassword = "123456789";
-
-        // Log password
-        echo "Plain password: " . $plainPassword . "\n";
-
-        // hash password
-        $hashedPassword = $this->passwordHasher->hashPassword($customer, $plainPassword);
-
-        // set password
-        $customer->setPassword($hashedPassword);
-
-        // save customer
         $manager->persist($customer);
+
+        // Create 10 customers
+        for ($i = 0; $i < self::$customersCount; $i++) {
+            $customer = new Customer();
+
+            // set customer attributes
+            $customer->setRoles(["ROLE_USER"]);
+            $customer->setEmail("customer" . $i . "@example.com");
+            $customer->setPassword($this->passwordHasher->hashPassword($customer, "password" . $i));
+
+            $manager->persist($customer);
+
+            // add to reference
+            $this->addReference("customer" . $i, $customer);
+        }
 
         // flush
         $manager->flush();

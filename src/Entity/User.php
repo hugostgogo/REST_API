@@ -12,11 +12,23 @@ use Doctrine\ORM\Mapping as ORM;
         'get' => [
             'openapi_context' => [
                 'summary' => 'Consulter la liste des utilisateurs inscrits liés à un client',
-            ]
+                'description' => 'Retourne la liste des utilisateurs inscrits liés à un client',
+            ],
         ],
         'post' => [
             'openapi_context' => [
                 'summary' => 'Ajouter un nouvel utilisateur lié à un client',
+                'description' => 'Ajoute un nouvel utilisateur lié à un client',
+                'parameters' => [
+                    [
+                        'name' => 'id',
+                        'in' => 'path',
+                        'description' => 'Identifiant du client',
+                        'schema' => [
+                            'type' => 'integer',
+                        ],
+                    ],
+                ],
             ]
         ],
     ],
@@ -24,14 +36,43 @@ use Doctrine\ORM\Mapping as ORM;
         'get' => [
             'openapi_context' => [
                 'summary' => 'Consulter un utilisateur inscrit sur le site web',
+                'description' => 'Retourne les informations d\'un utilisateur inscrit sur le site web',            
             ]
         ],
         'delete' => [
             'openapi_context' => [
                 'summary' => 'Supprimer un utilisateur ajouté par un client',
+                'description' => 'Supprime un utilisateur ajouté par un client',
+                'parameters' => [
+                    [
+                        'name' => 'id',
+                        'in' => 'path',
+                        'description' => 'Identifiant de l\'utilisateur',
+                        'schema' => [
+                            'type' => 'integer',
+                        ],
+                    ],
+                ],
+
             ]
         ],
     ],
+
+    attributes: [
+        'pagination_enabled' => true,
+        'pagination_items_per_page' => 5,
+    ],
+
+    normalizationContext: [
+        'groups' => ['user:read'],
+    ],
+
+    denormalizationContext: [
+        'groups' => ['user:write'],
+    ],
+
+    validationGroups: ['user:write'],
+
 )]
 class User
 {
@@ -48,6 +89,10 @@ class User
 
     #[ORM\Column(type: 'string', length: 255)]
     private $last_name;
+
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'users')]
+    #[ORM\JoinColumn(nullable: false)]
+    private $customer;
 
     public function getId(): ?int
     {
@@ -86,6 +131,13 @@ class User
     public function setLastName(string $last_name): self
     {
         $this->last_name = $last_name;
+
+        return $this;
+    }
+
+    public function setCustomer(?Customer $customer): self
+    {
+        $this->customer = $customer;
 
         return $this;
     }

@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
         'get' => [
             'security' => 'is_granted("ROLE_USER")',
             'openapi_context' => [
-                'summary' => 'Consulter un produit',
+                'summary' => 'Consulter les détails d\'un produit',
             ]
         ],
     ],
