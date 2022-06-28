@@ -2,42 +2,52 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+use App\Controller\UsersController;
+
+use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Api\UrlGeneratorInterface;
+
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
+    iri: "http://127.0.0.1:8000/api/users",
+    urlGenerationStrategy: UrlGeneratorInterface::ABS_URL,
     collectionOperations: [
         'get' => [
             'openapi_context' => [
                 'summary' => 'Consulter la liste des utilisateurs inscrits liés à un client',
                 'description' => 'Retourne la liste des utilisateurs inscrits liés à un client',
             ],
+            'controller' =>  [
+                UsersController::class,
+                'index'
+            ],
         ],
         'post' => [
             'openapi_context' => [
                 'summary' => 'Ajouter un nouvel utilisateur lié à un client',
                 'description' => 'Ajoute un nouvel utilisateur lié à un client',
-                'parameters' => [
-                    [
-                        'name' => 'id',
-                        'in' => 'path',
-                        'description' => 'Identifiant du client',
-                        'schema' => [
-                            'type' => 'integer',
-                        ],
-                    ],
-                ],
-            ]
+            ],
+            'controller' => [UsersController::class, 'create'],
         ],
     ],
     itemOperations: [
         'get' => [
             'openapi_context' => [
                 'summary' => 'Consulter un utilisateur inscrit sur le site web',
-                'description' => 'Retourne les informations d\'un utilisateur inscrit sur le site web',            
-            ]
+                'description' => 'Retourne les informations d\'un utilisateur inscrit sur le site web',
+            ],
+            'controller' =>  [
+                UsersController::class,
+                'show'
+            ],
+            'normalization_context' => [
+                'enable_max_depth' => true,
+            ],
+            'related_property' => 'customer',
         ],
         'delete' => [
             'openapi_context' => [
@@ -54,7 +64,10 @@ use Doctrine\ORM\Mapping as ORM;
                     ],
                 ],
 
-            ]
+            ],
+            'controller' => [
+                UsersController::class, 'delete'
+            ],
         ],
     ],
 
@@ -62,16 +75,6 @@ use Doctrine\ORM\Mapping as ORM;
         'pagination_enabled' => true,
         'pagination_items_per_page' => 5,
     ],
-
-    normalizationContext: [
-        'groups' => ['user:read'],
-    ],
-
-    denormalizationContext: [
-        'groups' => ['user:write'],
-    ],
-
-    validationGroups: ['user:write'],
 
 )]
 class User
@@ -133,6 +136,11 @@ class User
         $this->last_name = $last_name;
 
         return $this;
+    }
+
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
     }
 
     public function setCustomer(?Customer $customer): self

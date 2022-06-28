@@ -4,7 +4,11 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
+
+// import request component
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @extends ServiceEntityRepository<User>
@@ -30,37 +34,28 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(User $entity, bool $flush = false): void
+    public function removeById(int $id): void
     {
-        $this->getEntityManager()->remove($entity);
+        $entity = $this->find($id);
 
-        if ($flush) {
+        if ($entity) {
+            $this->getEntityManager()->remove($entity);
+
             $this->getEntityManager()->flush();
         }
     }
 
-//    /**
-//     * @return User[] Returns an array of User objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('u.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function create(array $args): User
+    {
+        $user = new User();
 
-//    public function findOneBySomeField($value): ?User
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        $user->setEmail($args['email']);
+        $user->setFirstName($args['first_name']);
+        $user->setLastName($args['last_name']);
+        $user->setCustomer($args['customer']);
+
+        $this->add($user, true);
+
+        return $user;
+    }
 }

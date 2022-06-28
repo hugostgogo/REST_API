@@ -1,4 +1,11 @@
 api_platform:
+    title: 'BileMo JSON REST API'
+    description: "L'API BileMo permets aux clients BileMo"
+    name_converter: 'Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter'
+    show_webby: false
+    doctrine:
+        # To enable or disable Doctrine ORM support.
+        enabled: true
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     patch_formats:
@@ -9,3 +16,4 @@ api_platform:
             apiKey:
                 name: Authorization
                 type: header
+

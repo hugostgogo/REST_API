@@ -110,14 +110,6 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
     public function addUser(User $user): self
     {
         if (!$this->users->contains($user)) {

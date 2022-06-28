@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
             'security' => 'is_granted("ROLE_USER")',
             'openapi_context' => [
                 'summary' => 'Consulter la liste des produits',
-            ]
+            ],
         ],
     ],
     itemOperations: [
