@@ -44,18 +44,4 @@ class UserRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-
-    public function create(array $args): User
-    {
-        $user = new User();
-
-        $user->setEmail($args['email']);
-        $user->setFirstName($args['first_name']);
-        $user->setLastName($args['last_name']);
-        $user->setCustomer($args['customer']);
-
-        $this->add($user, true);
-
-        return $user;
-    }
 }

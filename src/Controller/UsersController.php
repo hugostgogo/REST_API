@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 // import Security component
 use Symfony\Component\Security\Core\Security;
 
+use ApiPlatform\Core\Validator\ValidatorInterface;
+
 
 class UsersController extends AbstractController
 {
@@ -20,12 +22,14 @@ class UsersController extends AbstractController
 
     private $security;
 
-    public function __construct(UserRepository $userRepository, Security $security)
+    private $validator;
+
+    public function __construct(UserRepository $userRepository, Security $security, ValidatorInterface $validator)
     {
         $this->userRepository = $userRepository;
         $this->security = $security;
+        $this->validator = $validator;
     }
-
 
     public function index ()
     {
@@ -37,57 +41,47 @@ class UsersController extends AbstractController
     }
 
     // function to retrieve a user
-    public function show (Request $request)
+    public function show (User $data)
     {
-        // get authenticated customer
         $customer = $this->security->getUser();
 
-        // get user id from request
-        $userId = $request->get('id');
+        $userId = $data->getId();
 
-        // get user from repository
         $user = $this->userRepository->findOneBy(['id' => $userId, 'customer' => $customer]);
 
-        // if user is not found, return 404
-        // else return user
         if (!$user) {
-            return $this->json(['error' => 'User not found'], 404);
+            return $this->json(['message' => 'User not found for id (' . $userId . ")."], 404);
         } else {
             return $user;
         }
     }
 
-    public function create (Request $request)
+    public function create (User $data)
     {
-        $body = $request->toArray();
-
+        $this->validator->validate($data);
+        
         $customer = $this->security->getUser();
 
-        $body['customer'] = $customer;
+        $user = $data->setCustomer($customer);
 
-        $user = $this->userRepository->create($body);
+        $user = $this->userRepository->add($user, true);
 
         return $user;
     }
 
-    public function delete (Request $request)
+    public function delete (User $data)
     {
-        $id = $request->get('id');
-
-        // get authenticated customer
         $customer = $this->security->getUser();
 
-        // get user from repository
-        $user = $this->userRepository->findOneBy(['id' => $id, 'customer' => $customer]);
+        $userId = $data->getId();
 
-        // if user is not found, return 404
-        // else remove user
+        $user = $this->userRepository->findOneBy(['id' => $userId, 'customer' => $customer]);
+
         if (!$user) {
-            return $this->json(['error' => 'User not found'], 404);
+            return $this->json(['error' => 'User not found for id (' . $userId . ').'], 404);
         } else {
-            $this->userRepository->removeById($id);
-
-            return $this->json(['success' => 'User deleted'], 200);
+            $this->userRepository->delete($user);
+            return $this->json(['success' => 'User deleted']);
         }
     }
 }

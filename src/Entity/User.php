@@ -7,9 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 use App\Controller\UsersController;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
+
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
