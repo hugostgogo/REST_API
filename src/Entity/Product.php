@@ -14,6 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
             'openapi_context' => [
                 'summary' => 'Consulter la liste des produits',
             ],
+            'pagination_items_per_page' => 10,
+            'pagination_enabled_param' => 'page',
         ],
     ],
     itemOperations: [
