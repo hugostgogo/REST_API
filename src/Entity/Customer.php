@@ -128,4 +128,10 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
 }

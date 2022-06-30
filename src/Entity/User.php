@@ -10,12 +10,13 @@ use App\Controller\UsersController;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
     iri: "http://127.0.0.1:8000/api/users",
     urlGenerationStrategy: UrlGeneratorInterface::ABS_URL,
+    security: 'is_granted("ROLE_USER")',
     collectionOperations: [
         'get' => [
             'openapi_context' => [
@@ -26,6 +27,16 @@ use Symfony\Component\Validator\Constraints as Assert;
                 UsersController::class,
                 'index'
             ],
+            'denormalization_context' => [
+                'groups' => ['user:write'],
+            ],
+            'normalization_context' => [
+                'groups' => ['user:read'],
+            ],
+            'pagination_items_per_page' => 10,
+            'pagination_enabled_param' => 'page',
+            'pagination_items_per_page_param' => 'itemsPerPage',
+            'pagination_maximum_items_per_page' => 100,
         ],
         'post' => [
             'openapi_context' => [
@@ -33,6 +44,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'description' => 'Ajoute un nouvel utilisateur lié à un client',
             ],
             'controller' => [UsersController::class, 'create'],
+            'denormalization_context' => [
+                'groups' => ['user:write'],
+            ],
+            'normalization_context' => [
+                'groups' => ['user:read'],
+            ],
         ],
     ],
     itemOperations: [
@@ -45,10 +62,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                 UsersController::class,
                 'show'
             ],
-            'normalization_context' => [
-                'enable_max_depth' => true,
+            'denormalization_context' => [
+                'groups' => ['user:write'],
             ],
-            'related_property' => 'customer',
+            'normalization_context' => [
+                'groups' => ['user:read'],
+            ],
         ],
         'delete' => [
             'openapi_context' => [
@@ -71,27 +90,25 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         ],
     ],
-
-    attributes: [
-        'pagination_enabled' => true,
-        'pagination_items_per_page' => 5,
-    ],
-
 )]
 class User
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["user:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["user:read"])]
     private $email;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["user:read"])]
     private $first_name;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["user:read"])]
     private $last_name;
 
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'users')]

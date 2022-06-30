@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 // import UsersRepository
@@ -14,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 
 use ApiPlatform\Core\Validator\ValidatorInterface;
-
+use Doctrine\Common\Collections\Collection;
 
 class UsersController extends AbstractController
 {
@@ -31,13 +32,13 @@ class UsersController extends AbstractController
         $this->validator = $validator;
     }
 
-    public function index ()
+    public function index (): Paginator
     {
-        $customer = $this->security->getUser();
+        $request = Request::createFromGlobals();
+        $page = $request->query->getInt('page', 1);
 
-        $users = $this->userRepository->findBy(['customer' => $customer]);
-        
-        return $users;
+        $customer = $this->security->getUser();
+        return $this->userRepository->getUsersByPage($customer, $page);
     }
 
     // function to retrieve a user
