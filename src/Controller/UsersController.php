@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 
 use ApiPlatform\Core\Validator\ValidatorInterface;
-use Doctrine\Common\Collections\Collection;
 
 class UsersController extends AbstractController
 {

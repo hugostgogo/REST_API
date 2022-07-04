@@ -4,13 +4,10 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Paginator;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 use App\Entity\Customer;
-// import request component
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @extends ServiceEntityRepository<User>
