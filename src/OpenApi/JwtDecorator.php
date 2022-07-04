@@ -35,20 +35,12 @@ final class JwtDecorator implements OpenApiFactoryInterface
         ],
     ];
 
+    protected $pathItem;
+
     public function __construct(
         private OpenApiFactoryInterface $decorated
-    ) {}
-
-    public function __invoke(array $context = []): OpenApi
-    {
-        $openApi = ($this->decorated)($context);
-        $schemas = $openApi->getComponents()->getSchemas();
-
-        $schemas['Token'] = new \ArrayObject(self::$token);
-
-        $schemas['Credentials'] = new \ArrayObject(self::$credentials);
-
-        $pathItem = new Model\PathItem(
+    ) {
+        $this->pathItem = new Model\PathItem(
             ref: 'JWT Token',
             post: new Model\Operation(
                 operationId: 'postCredentialsItem',
@@ -78,7 +70,18 @@ final class JwtDecorator implements OpenApiFactoryInterface
                 ),
             ),
         );
-        $openApi->getPaths()->addPath('/authentication_token', $pathItem);
+    }
+
+    public function __invoke(array $context = []): OpenApi
+    {
+        $openApi = ($this->decorated)($context);
+        $schemas = $openApi->getComponents()->getSchemas();
+
+        $schemas['Token'] = new \ArrayObject(self::$token);
+
+        $schemas['Credentials'] = new \ArrayObject(self::$credentials);
+        
+        $openApi->getPaths()->addPath('/authentication_token', $this->pathItem);
 
         return $openApi;
     }
