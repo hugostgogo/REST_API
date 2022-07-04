@@ -82,7 +82,7 @@ class UsersController extends AbstractController
             return $this->json(['error' => 'User not found for id (' . $userId . ').'], 404);
         } else {
             $this->userRepository->delete($user);
-            return $this->json(['success' => 'User deleted']);
+            return $this->json(['success' => 'User deleted'], 200);
         }
     }
 }
