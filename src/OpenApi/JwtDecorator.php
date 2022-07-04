@@ -10,6 +10,31 @@ use ApiPlatform\Core\OpenApi\Model;
 
 final class JwtDecorator implements OpenApiFactoryInterface
 {
+
+    protected static $token = [
+        'type' => 'object',
+            'properties' => [
+                'token' => [
+                    'type' => 'string',
+                    'readOnly' => true,
+                ],
+            ],
+    ];
+
+    protected static $credentials = [
+        'type' => 'object',
+        'properties' => [
+            'email' => [
+                'type' => 'string',
+                'example' => 'test@example.com',
+            ],
+            'password' => [
+                'type' => 'string',
+                'example' => '123456789',
+            ],
+        ],
+    ];
+
     public function __construct(
         private OpenApiFactoryInterface $decorated
     ) {}
@@ -19,28 +44,9 @@ final class JwtDecorator implements OpenApiFactoryInterface
         $openApi = ($this->decorated)($context);
         $schemas = $openApi->getComponents()->getSchemas();
 
-        $schemas['Token'] = new \ArrayObject([
-            'type' => 'object',
-            'properties' => [
-                'token' => [
-                    'type' => 'string',
-                    'readOnly' => true,
-                ],
-            ],
-        ]);
-        $schemas['Credentials'] = new \ArrayObject([
-            'type' => 'object',
-            'properties' => [
-                'email' => [
-                    'type' => 'string',
-                    'example' => 'test@example.com',
-                ],
-                'password' => [
-                    'type' => 'string',
-                    'example' => '123456789',
-                ],
-            ],
-        ]);
+        $schemas['Token'] = new \ArrayObject(self::$token);
+
+        $schemas['Credentials'] = new \ArrayObject(self::$credentials);
 
         $pathItem = new Model\PathItem(
             ref: 'JWT Token',
