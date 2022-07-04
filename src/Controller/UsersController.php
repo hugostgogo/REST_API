@@ -72,17 +72,22 @@ class UsersController extends AbstractController
 
     public function delete (User $data)
     {
-        $customer = $this->security->getUser();
+        try {
+            $customer = $this->security->getUser();
+    
+            $userId = $data->getId();
+    
+            $user = $this->userRepository->findOneBy(['id' => $userId, 'customer' => $customer]);
 
-        $userId = $data->getId();
+            if (!$user) {
+                return $this->json(['message' => 'User not found for id (' . $userId . ")."], 404);
+            } else {
+                $this->userRepository->removeById($userId);
+                return $this->json(['message' => 'User deleted.'], 200);
+            }
 
-        $user = $this->userRepository->findOneBy(['id' => $userId, 'customer' => $customer]);
-
-        if (!$user) {
-            return $this->json(['error' => 'User not found for id (' . $userId . ').'], 404);
-        } else {
-            $this->userRepository->delete($user);
-            return $this->json(['success' => 'User deleted'], 200);
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], 500);
         }
     }
 }
