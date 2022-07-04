@@ -56,15 +56,29 @@ class UsersController extends AbstractController
         }
     }
 
-    public function create (User $data)
+    public function create ()
     {
-        $this->validator->validate($data);
+        $request = Request::createFromGlobals();
         
+        $data = json_decode($request->getContent(), true);
+
+        $user = new User();
+
+        $user->setFirstName($data['first_name']);
+        $user->setLastName($data['last_name']);
+        $user->setEmail($data['email']);
+
         $customer = $this->security->getUser();
 
-        $user = $data->setCustomer($customer);
+        $user->setCustomer($customer);
 
-        $user = $this->userRepository->add($user, true);
+        $errors = $this->validator->validate($user);
+
+        if (isset($errors) && count($errors) > 0) {
+            return $this->json($errors, 400);
+        }
+
+        $this->userRepository->add($user, true);
 
         return $user;
     }

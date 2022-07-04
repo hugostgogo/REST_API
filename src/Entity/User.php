@@ -42,7 +42,36 @@ use Symfony\Component\Serializer\Annotation\Groups;
             'openapi_context' => [
                 'summary' => 'Ajouter un nouvel utilisateur lié à un client',
                 'description' => 'Ajoute un nouvel utilisateur lié à un client',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'first_name' => [
+                                        'type' => 'string',
+                                        'description' => 'Prénom de l\'utilisateur',
+                                        'example' => 'John',
+                                    ],
+                                    'last_name' => [
+                                        'type' => 'string',
+                                        'description' => 'Nom de l\'utilisateur',
+                                        'example' => 'Doe',
+                                    ],
+                                    'email' => [
+                                        'type' => 'string',
+                                        'description' => 'Email de l\'utilisateur',
+                                        'example' => 'johndoe@example.com',
+                                    ],
+                                ],
+                                'required' => ['first_name', 'last_name', 'email'],
+                            ],
+                        ],
+                    ],
+                ],
+
             ],
+
             'controller' => [UsersController::class, 'create'],
             'denormalization_context' => [
                 'groups' => ['user:write'],
@@ -100,15 +129,15 @@ class User
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:write"])]
     private $email;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:write"])]
     private $first_name;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["user:read"])]
+    #[Groups(["user:read", "user:write"])]
     private $last_name;
 
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'users')]
